@@ -79,19 +79,20 @@ def check_domains(hosted_domains):
     dns_records = get_records()
     for domain in hosted_domains:
         record = get_dns_record(dns_records, domain)
-        if not record:
-            print(f"Could not find matching DNS record for {domain}")
-            continue
-        elif record['editable'] != '1':
-            print(f"DNS record for {domain} is not editable")
-            continue
-        elif record['value'] == current_ip:
-            print(f"DNS record for {domain} is already set to {current_ip}")
-            continue
-        else:
-            print(f"Updating {domain} from {record['value']} to {current_ip}")
-            remove_record(record)
-            add_record(domain, current_ip, dns_type=record['type'])
+        if record:
+            if record["value"] == current_ip:
+                print(f"DNS record for {domain} is already set to {current_ip}")
+                continue
+            else:
+                # value for record is not our IP. See if we can change it
+                if record["editable"] != "1":
+                    print(f"DNS record for {domain} is not editable")
+                    continue
+                else:
+                    print(f"Removing DNS record for {domain} at ip {record['value']}")
+                    remove_record(record)
+        print(f"Adding DNS record for {domain} at {current_ip}")
+        add_record(domain, current_ip)
 
 
 if __name__=="__main__":
